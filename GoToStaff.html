@@ -1,0 +1,226 @@
+<!doctype html>
+<html>
+<head>
+  <base target="_top">
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+
+    body{
+      font-family:'Segoe UI', Arial, sans-serif;
+      font-size:13px;
+      padding:15px;
+      background-color:#f5f5f5;
+    }
+
+    h3{
+      color:#333;
+      margin-bottom:20px;
+      font-size:22px;
+      font-weight:600;
+      border-bottom:3px solid #667eea;
+      padding-bottom:12px;
+    }
+
+    label{
+      display:block;
+      margin-top:12px;
+      margin-bottom:6px;
+      color:#555;
+      font-weight:500;
+      font-size:12px;
+      text-transform:uppercase;
+      letter-spacing:.5px;
+    }
+
+    select{
+      width:100%;
+      padding:10px 12px;
+      border:2px solid #e0e0e0;
+      border-radius:6px;
+      font-size:13px;
+      font-family:'Segoe UI', Arial, sans-serif;
+      transition:all .3s ease;
+      background-color:#f8f9fa;
+    }
+
+    select:hover{
+      border-color:#667eea;
+      background-color:#f0f2ff;
+    }
+
+    select:focus{
+      outline:none;
+      border-color:#667eea;
+      background-color:white;
+      box-shadow:0 0 0 3px rgba(102,126,234,.1);
+    }
+
+    button{
+      margin-top:10px;
+      padding:10px 16px;
+      border:none;
+      border-radius:6px;
+      font-size:13px;
+      font-weight:600;
+      cursor:pointer;
+      transition:all .3s ease;
+      text-transform:uppercase;
+      letter-spacing:.5px;
+    }
+
+    .btn-row{
+      display:flex;
+      gap:8px;
+      margin-top:16px;
+    }
+    .btn-row button{ flex:1; padding:10px; }
+
+    .btn-primary{
+      background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
+      color:#fff;
+      box-shadow:0 4px 15px rgba(102,126,234,.3);
+    }
+    .btn-primary:hover{
+      transform:translateY(-2px);
+      box-shadow:0 6px 20px rgba(102,126,234,.4);
+    }
+    .btn-primary:active{ transform:translateY(0); }
+
+    .btn-secondary{
+      background-color:#e0e0e0;
+      color:#333;
+    }
+    .btn-secondary:hover{
+      background-color:#d0d0d0;
+      transform:translateY(-2px);
+    }
+    .btn-secondary:active{ transform:translateY(0); }
+
+    .error-message{
+      color:#d32f2f;
+      background-color:#ffebee;
+      padding:10px;
+      border-radius:4px;
+      margin-bottom:15px;
+      display:none;
+    }
+
+    .success-message{
+      color:#388e3c;
+      background-color:#e8f5e9;
+      padding:10px;
+      border-radius:4px;
+      margin-bottom:15px;
+      display:none;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="error-message" id="errorMsg"></div>
+  <div class="success-message" id="successMsg"></div>
+
+  <h3>Go to Employee Page</h3>
+
+  <label>Department:</label>
+  <select id="dept" onchange="loadStaff()">
+    <option value="">Select…</option>
+    <? departments.forEach(function(d){ ?>
+      <option value="<?= d ?>"><?= d ?></option>
+    <? }) ?>
+  </select>
+
+  <label>Employee:</label>
+  <select id="staff">
+    <option value="">Select a department first</option>
+  </select>
+
+  <div class="btn-row">
+    <button id="btnGo" type="button" class="btn-primary" onclick="go()">GO</button>
+    <button type="button" class="btn-secondary" onclick="google.script.host.close()">Cancel</button>
+  </div>
+
+  <script>
+    function showError(message) {
+      var errorDiv = document.getElementById('errorMsg');
+      errorDiv.textContent = message;
+      errorDiv.style.display = 'block';
+      setTimeout(function(){ errorDiv.style.display = 'none'; }, 5000);
+    }
+
+    function showSuccess(message) {
+      var successDiv = document.getElementById('successMsg');
+      successDiv.textContent = message;
+      successDiv.style.display = 'block';
+      setTimeout(function(){ successDiv.style.display = 'none'; }, 2500);
+    }
+
+    function loadStaff() {
+      var dept = document.getElementById('dept').value;
+      var sel = document.getElementById('staff');
+
+      if (!dept) {
+        sel.innerHTML = '<option value="">Select a department first</option>';
+        return;
+      }
+
+      google.script.run
+        .withSuccessHandler(function(list) {
+          sel.innerHTML = '';
+
+          if (!list || list.length === 0) {
+            var opt = document.createElement('option');
+            opt.value = '';
+            opt.textContent = 'No employees found in this department';
+            sel.appendChild(opt);
+            return;
+          }
+
+          var empty = document.createElement('option');
+          empty.value = '';
+          empty.textContent = 'Select employee';
+          sel.appendChild(empty);
+
+          list.forEach(function(item) {
+            var opt = document.createElement('option');
+            opt.value = item.id; // page name = STAFF ID
+            opt.textContent = item.name + ' (' + item.id + ')';
+            sel.appendChild(opt);
+          });
+        })
+        .withFailureHandler(function(err) {
+          showError('Error: ' + (err && err.message ? err.message : err));
+        })
+        .getStaffByDepartment(dept);
+    }
+
+    function go() {
+      var staffSel = document.getElementById('staff');
+      if (!staffSel.value) {
+        showError('Please select an employee.');
+        return;
+      }
+
+      var id = staffSel.value;
+
+      var btn = document.getElementById('btnGo');
+      btn.disabled = true;
+      btn.textContent = 'OPENING...';
+
+      google.script.run
+        .withSuccessHandler(function() {
+          showSuccess('Opened.');
+          setTimeout(function(){
+            google.script.host.close();
+          }, 500);
+        })
+        .withFailureHandler(function(err) {
+          showError('Error: ' + (err && err.message ? err.message : err));
+          btn.disabled = false;
+          btn.textContent = 'GO';
+        })
+        .goToStaffSheet(id);
+    }
+  </script>
+</body>
+</html>

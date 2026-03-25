@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <style>
+    body { font-family: Arial; padding: 20px; background:#f5f5f5; }
+    h2 { text-align:center; }
+    .info-box {
+      background:#fff;
+      padding:15px;
+      border-radius:8px;
+      box-shadow:0 2px 6px rgba(0,0,0,.2);
+      margin-bottom:20px;
+    }
+    .info-row { display:flex; justify-content:space-between; }
+    table { width:100%; border-collapse:collapse; background:white; }
+    th {
+      background:#0b3d91;
+      color:white;
+      padding:8px;
+      border:1px solid #ccc;
+    }
+    td {
+      padding:6px;
+      border:1px solid #ccc;
+      text-align:center;
+    }
+    .footer-buttons { margin-top:20px; text-align:center; }
+    button {
+      padding:10px 25px;
+      margin:5px;
+      border:none;
+      border-radius:5px;
+      cursor:pointer;
+    }
+    .printBtn { background:#0b3d91; color:white; }
+    .closeBtn { background:#666; color:white; }
+  </style>
+</head>
+
+<body>
+
+<h2>Employee Report</h2>
+
+<div class="info-box">
+  <div class="info-row"><b>Name / Dept:</b> <?= header.nameDept ?></div>
+  <div class="info-row"><b>Annual Leave:</b> <?= header.annual ?></div>
+  <div class="info-row"><b>Sick Leave:</b> <?= header.sick ?></div>
+  <div class="info-row"><b>Remaining Days:</b> <?= header.remain ?></div>
+</div>
+
+
+<table>
+<tr>
+  <th>Leave Date</th>
+  <th>Reason</th>
+  <th>Approved By</th>
+  <th>Sick</th>
+  <th>Annual</th>
+  <th>File No</th>
+  <th>Return Date</th>
+</tr>
+
+<? for (var i = 0; i < data.length; i++) { ?>
+<tr>
+<? for (var j = 0; j < data[i].length; j++) { ?>
+<td><?= data[i][j] ?></td>
+<? } ?>
+</tr>
+<? } ?>
+
+</table>
+
+<div class="footer-buttons">
+  <button class="printBtn" onclick="window.print()">Print / PDF</button>
+  <button class="closeBtn" onclick="google.script.host.close()">Close</button>
+</div>
+
+</body>
+</html>

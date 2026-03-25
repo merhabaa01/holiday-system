@@ -1,0 +1,5 @@
+.clasprc.json
+.clasp.json
+.gitconfig
+node_modules/
+.env

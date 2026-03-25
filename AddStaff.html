@@ -1,0 +1,238 @@
+<!doctype html>
+<html>
+<head>
+  <base target="_top">
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+
+    body{
+      font-family:'Segoe UI', Arial, sans-serif;
+      font-size:13px;
+      padding:15px;
+      background-color:#f5f5f5;
+    }
+
+    h3{
+      color:#333;
+      margin-bottom:20px;
+      font-size:22px;
+      font-weight:600;
+      border-bottom:3px solid #667eea;
+      padding-bottom:12px;
+      text-align:left;
+    }
+
+    label{
+      display:block;
+      margin-top:12px;
+      margin-bottom:6px;
+      color:#555;
+      font-weight:500;
+      font-size:12px;
+      text-transform:uppercase;
+      letter-spacing:.5px;
+    }
+
+    select, input{
+      width:100%;
+      padding:10px 12px;
+      border:2px solid #e0e0e0;
+      border-radius:6px;
+      font-size:13px;
+      font-family:'Segoe UI', Arial, sans-serif;
+      transition:all .3s ease;
+      background-color:#f8f9fa;
+      text-transform:uppercase;
+    }
+
+    input[type="number"]{
+      text-transform:none; /* number fields no need uppercase */
+    }
+
+    select:hover, input:hover{
+      border-color:#667eea;
+      background-color:#f0f2ff;
+    }
+
+    select:focus, input:focus{
+      outline:none;
+      border-color:#667eea;
+      background-color:white;
+      box-shadow:0 0 0 3px rgba(102,126,234,.1);
+    }
+
+    .btn-row{
+      display:flex;
+      gap:8px;
+      margin-top:16px;
+    }
+    .btn-row button{ flex:1; padding:10px; }
+
+    button{
+      border:none;
+      border-radius:6px;
+      font-size:13px;
+      font-weight:600;
+      cursor:pointer;
+      transition:all .3s ease;
+      text-transform:uppercase;
+      letter-spacing:.5px;
+    }
+
+    .btn-primary{
+      background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
+      color:#fff;
+      box-shadow:0 4px 15px rgba(102,126,234,.3);
+    }
+    .btn-primary:hover{
+      transform:translateY(-2px);
+      box-shadow:0 6px 20px rgba(102,126,234,.4);
+    }
+    .btn-primary:active{ transform:translateY(0); }
+
+    .btn-secondary{
+      background-color:#e0e0e0;
+      color:#333;
+    }
+    .btn-secondary:hover{
+      background-color:#d0d0d0;
+      transform:translateY(-2px);
+    }
+    .btn-secondary:active{ transform:translateY(0); }
+
+    .error-message{
+      color:#d32f2f;
+      background-color:#ffebee;
+      padding:10px;
+      border-radius:4px;
+      margin-bottom:15px;
+      display:none;
+    }
+
+    .success-message{
+      color:#388e3c;
+      background-color:#e8f5e9;
+      padding:10px;
+      border-radius:4px;
+      margin-bottom:15px;
+      display:none;
+    }
+
+    .hint{
+      margin-top:6px;
+      font-size:12px;
+      color:#777;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="error-message" id="errorMsg"></div>
+  <div class="success-message" id="successMsg"></div>
+
+  <h3>ADD NEW STAFF</h3>
+
+  <label>STAFF ID</label>
+  <input id="staffId" type="text" placeholder="E.G. 1001">
+
+  <label>EMPLOYEE NAME</label>
+  <input id="name" type="text" placeholder="E.G. JOHN DOE">
+
+  <label>DEPARTMENT</label>
+  <select id="department">
+    <option value="">SELECT DEPARTMENT</option>
+  </select>
+
+  <label>ANNUAL LEAVE</label>
+  <input id="annual" type="number" min="0" step="1" placeholder="0">
+
+  <label>SICK LEAVE</label>
+  <input id="sick" type="number" min="0" step="1" placeholder="0">
+
+  <!-- TOTAL: we calculate for display; your backend already sets TOTAL formula -->
+  <label>TOTAL LEAVE</label>
+  <input id="total" type="number" readonly>
+  <div class="hint">Total is calculated automatically (Annual + Sick).</div>
+
+  <div class="btn-row">
+    <button id="btnAdd" class="btn-primary" type="button" onclick="addStaff()">ADD STAFF</button>
+    <button class="btn-secondary" type="button" onclick="google.script.host.close()">CLOSE</button>
+  </div>
+
+<script>
+  function showError(message){
+    var d = document.getElementById('errorMsg');
+    d.textContent = message;
+    d.style.display = 'block';
+    setTimeout(function(){ d.style.display='none'; }, 5000);
+  }
+
+  function showSuccess(message){
+    var d = document.getElementById('successMsg');
+    d.textContent = message;
+    d.style.display = 'block';
+    setTimeout(function(){ d.style.display='none'; }, 2500);
+  }
+
+  // Load departments
+  google.script.run
+    .withSuccessHandler(function(list){
+      const sel = document.getElementById("department");
+      list.forEach(d => {
+        const opt = document.createElement("option");
+        opt.value = d;
+        opt.textContent = d;
+        sel.appendChild(opt);
+      });
+    })
+    .withFailureHandler(function(err){
+      showError('Failed to load departments: ' + (err && err.message ? err.message : err));
+    })
+    .getDepartments();
+
+  function calcTotal(){
+    const a = Number(document.getElementById("annual").value || 0);
+    const s = Number(document.getElementById("sick").value || 0);
+    document.getElementById("total").value = a + s;
+  }
+
+  document.getElementById("annual").addEventListener("input", calcTotal);
+  document.getElementById("sick").addEventListener("input", calcTotal);
+
+  function addStaff() {
+    const data = {
+      staffId: document.getElementById("staffId").value.trim().toUpperCase(),
+      name: document.getElementById("name").value.trim().toUpperCase(),
+      department: document.getElementById("department").value,
+      annual: Number(document.getElementById("annual").value || 0),
+      sick: Number(document.getElementById("sick").value || 0),
+      total: Number(document.getElementById("total").value || 0)
+    };
+
+    if (!data.staffId || !data.name || !data.department) {
+      showError("PLEASE FILL ALL REQUIRED FIELDS (STAFF ID, NAME, DEPARTMENT).");
+      return;
+    }
+
+    const btn = document.getElementById("btnAdd");
+    btn.disabled = true;
+    btn.textContent = "SAVING...";
+
+    google.script.run
+      .withSuccessHandler(function(msg){
+        showSuccess(msg);
+        setTimeout(function(){
+          google.script.host.close();
+        }, 1200);
+      })
+      .withFailureHandler(function(err){
+        showError("Error: " + (err && err.message ? err.message : err));
+        btn.disabled = false;
+        btn.textContent = "ADD STAFF";
+      })
+      .addNewStaff(data);
+  }
+</script>
+
+</body>
+</html>

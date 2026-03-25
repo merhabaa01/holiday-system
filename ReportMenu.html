@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <style>
+    body { font-family: Arial; padding: 20px; }
+    h2 { text-align: center; }
+    button, select {
+      width: 100%;
+      padding: 10px;
+      margin-top: 12px;
+      font-size: 14px;
+    }
+    .section {
+      border: 1px solid #ccc;
+      padding: 15px;
+      margin-top: 20px;
+      border-radius: 8px;
+    }
+  </style>
+</head>
+
+<body>
+<h2>📄 Generate Report</h2>
+
+<!-- ALL STAFF -->
+<div class="section">
+  <h3>All Staff Report</h3>
+  <button onclick="runAll()">Generate</button>
+</div>
+
+<!-- DEPARTMENT -->
+<div class="section">
+  <h3>Department Report</h3>
+  <select id="deptSelect">
+    <option value="">Select Department</option>
+  </select>
+  <button onclick="runDept()">Generate</button>
+</div>
+
+<!-- INDIVIDUAL -->
+<div class="section">
+  <h3>Individual Report</h3>
+
+  <select id="indDept" onchange="loadEmployees()">
+    <option value="">Select Department</option>
+  </select>
+
+  <select id="indEmp">
+    <option value="">Select Employee</option>
+  </select>
+
+  <button onclick="runIndividual()">Generate</button>
+</div>
+
+<script>
+google.script.run.withSuccessHandler(function(list){
+  const d1 = document.getElementById("deptSelect");
+  const d2 = document.getElementById("indDept");
+
+  list.forEach(dep => {
+    d1.add(new Option(dep, dep));
+    d2.add(new Option(dep, dep));
+  });
+}).getDepartments();
+
+function loadEmployees() {
+  const dept = document.getElementById("indDept").value;
+  const emp = document.getElementById("indEmp");
+  emp.innerHTML = "<option value=''>Select Employee</option>";
+  if (!dept) return;
+
+  google.script.run.withSuccessHandler(function(list){
+    list.forEach(e => {
+      emp.add(new Option(e.name, e.id));
+    });
+  }).getStaffByDepartment(dept);
+}
+
+function runAll() {
+  google.script.run.showAllStaffReport();
+}
+
+function runDept() {
+  const dept = document.getElementById("deptSelect").value;
+  if (!dept) return alert("Select department");
+  google.script.run.showDepartmentReport(dept);
+}
+
+function runIndividual() {
+  const id = document.getElementById("indEmp").value;
+  if (!id) return alert("Select employee");
+  google.script.run.showIndividualReportById(id);
+}
+</script>
+</body>
+</html>

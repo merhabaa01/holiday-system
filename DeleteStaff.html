@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+    <style>
+      body { font-family: Arial, sans-serif; font-size:13px; padding:10px; }
+      h3   { margin-top:0; }
+      label { display:block; margin-top:8px; }
+      select { width:100%; box-sizing:border-box; padding:4px; }
+      button { padding:6px 10px; }
+      .btn-row { display:flex; justify-content:space-between; gap:8px; margin-top:12px; }
+      .btn-row button { flex:1; }
+    </style>
+  </head>
+  <body>
+    <h3>Delete Employee Page</h3>
+
+    <label>Department:</label>
+    <select id="dept" onchange="loadStaff()">
+      <option value="">Select…</option>
+      <? departments.forEach(function(d){ ?>
+        <option value="<?= d ?>"><?= d ?></option>
+      <? }) ?>
+    </select>
+
+    <label>Employee:</label>
+    <select id="staff">
+      <option value="">Select a department first</option>
+    </select>
+
+    <div class="btn-row">
+      <button type="button" onclick="doDelete()" style="background:#c62828;color:#fff;">
+        DELETE
+      </button>
+      <button type="button" onclick="google.script.host.close()">Cancel</button>
+    </div>
+
+    <script>
+      function loadStaff() {
+        var dept = document.getElementById('dept').value;
+        if (!dept) return;
+
+        google.script.run
+          .withSuccessHandler(function(list) {
+            var sel = document.getElementById('staff');
+            sel.innerHTML = '';
+
+            if (!list || list.length === 0) {
+              var opt = document.createElement('option');
+              opt.value = '';
+              opt.textContent = 'No employees found in this department';
+              sel.appendChild(opt);
+              return;
+            }
+
+            var empty = document.createElement('option');
+            empty.value = '';
+            empty.textContent = 'Select employee';
+            sel.appendChild(empty);
+
+            list.forEach(function(item) {
+              var opt = document.createElement('option');
+              opt.value = item.id; // Page name = STAFF ID
+              opt.textContent = item.name + ' (' + item.id + ')';
+              sel.appendChild(opt);
+            });
+          })
+          .withFailureHandler(function(err) {
+            alert('Error: ' + err.message);
+          })
+          .getStaffByDepartment(dept);  // Code.gs function
+      }
+
+      function doDelete() {
+        var staffSel = document.getElementById('staff');
+        var staffId  = staffSel.value;
+        var staffText = staffSel.options[staffSel.selectedIndex]?.text || '';
+
+        if (!staffId) {
+          alert('Please select an employee to delete.');
+          return;
+        }
+
+        // Confirmation dialog
+        var ok = confirm(
+          'You are about to delete this employee page:\n\n' +
+          staffText + '\n\nAre you sure you want to continue?'
+        );
+        if (!ok) return;
+
+        google.script.run
+          .withSuccessHandler(function(msg) {
+            alert(msg);
+            google.script.host.close();
+          })
+          .withFailureHandler(function(err) {
+            alert('Error: ' + err.message);
+          })
+          .deleteStaffSheetById(staffId);
+      }
+    </script>
+  </body>
+</html>

@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+    <style>
+
+      body {
+        font-family: 'Arial';
+        padding: 25px;
+        background: #f6f8fa;
+      }
+
+      .report-container {
+        background: white;
+        padding: 25px;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+        max-width: 1100px;
+        margin: auto;
+      }
+
+      /* LOGO */
+      .logo {
+        width: 140px;
+        display: block;
+        margin: 0 auto 15px auto;
+      }
+
+      h2 {
+        text-align: center;
+        font-size: 22px;
+        margin-bottom: 20px;
+        text-transform: uppercase;
+        color: #333;
+        letter-spacing: 1px;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 25px;
+      }
+
+      th {
+        background: #1f487e;
+        color: white;
+        padding: 10px;
+        font-size: 14px;
+        border: 1px solid #ccc;
+      }
+
+      td {
+        padding: 8px;
+        font-size: 13px;
+        border: 1px solid #ccc;
+        text-align: center;
+      }
+
+      tr:nth-child(even) {
+        background: #eef3f9;
+      }
+
+      /* BUTTONS */
+      .btn {
+        margin-top: 25px;
+        padding: 12px;
+        width: 48%;
+        font-size: 15px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+      }
+
+      .btn-print {
+        background: #1f487e;
+        color: white;
+      }
+
+      .btn-close {
+        background: #555;
+        color: white;
+      }
+
+      .btn-container {
+        display: flex;
+        justify-content: space-between;
+      }
+
+    </style>
+  </head>
+
+  <body>
+
+    <div class="report-container">
+
+      <!-- LOGO -->
+      <img src="https://opentech244.my.canva.site/_assets/media/8e7fdd018399237ecd79240faf30e209.jpg" class="logo">
+
+      <!-- Dynamic Title -->
+      <h2><?= title ?></h2>
+
+      <!-- Dynamic Table -->
+      <table>
+        <thead>
+          <tr>
+            <? for (let i = 0; i < header.length; i++) { ?>
+              <th><?= header[i] ?></th>
+            <? } ?>
+          </tr>
+        </thead>
+
+        <tbody>
+          <? data.forEach(function(row){ ?>
+            <tr>
+              <? row.forEach(function(cell){ ?>
+                <td><?= cell ?></td>
+              <? }) ?>
+            </tr>
+          <? }) ?>
+        </tbody>
+      </table>
+
+      <!-- BUTTONS -->
+      <div class="btn-container">
+        <button class="btn btn-print" onclick="window.print()">Print / Save PDF</button>
+        <button class="btn btn-close" onclick="google.script.host.close()">Close</button>
+      </div>
+
+    </div>
+
+  </body>
+</html>

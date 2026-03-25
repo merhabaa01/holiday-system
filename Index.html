@@ -1,0 +1,1195 @@
+<!doctype html>
+<html>
+<head>
+  <base target="_top">
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --bg1:#0b1220;
+      --bg2:#070b16;
+      --card:rgba(255,255,255,.92);
+      --muted:#667085;
+      --text:#101828;
+      --line:rgba(16,24,40,.10);
+      --accent1:#667eea;
+      --accent2:#764ba2;
+      --btn:#6d5bd0;
+      --btn2:#eef2ff;
+      --danger:#ff5252;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family:'Poppins',Segoe UI,Arial,sans-serif;
+      background:linear-gradient(135deg,#e9eef7 0%, #dbe4f3 100%);
+      color:var(--text);
+      overflow:hidden;
+    }
+
+    .container{
+      display:flex;
+      width:100%;
+      height:100%;
+    }
+
+    /* SIDEBAR */
+    aside{
+      width:280px;
+      background:rgba(255,255,255,.95);
+      backdrop-filter:blur(10px);
+      padding:26px 18px;
+      box-shadow:0 10px 40px rgba(0,0,0,.08);
+      overflow:auto;
+      display:flex;
+      flex-direction:column;
+      gap:18px;
+    }
+    .logo{
+      display:flex;align-items:center;gap:12px;
+      font-size:22px;font-weight:800;
+      background:linear-gradient(135deg,var(--accent1),var(--accent2));
+      -webkit-background-clip:text;
+      -webkit-text-fill-color:transparent;
+      background-clip:text;
+      margin-bottom:8px;
+    }
+    .logo-icon{
+      width:38px;height:38px;
+      border-radius:12px;
+      background:linear-gradient(135deg,var(--accent1),var(--accent2));
+      display:flex;align-items:center;justify-content:center;
+      color:#fff;font-weight:800;
+      box-shadow:0 8px 18px rgba(102,126,234,.25);
+    }
+    nav{display:flex;flex-direction:column;gap:10px}
+    .nav-item{
+      display:flex;align-items:center;gap:12px;
+      padding:12px 14px;
+      border-radius:14px;
+      border:none;
+      cursor:pointer;
+      font-size:14px;
+      font-weight:600;
+      color:#344054;
+      background:transparent;
+      transition:all .25s ease;
+      text-align:left;
+    }
+    .nav-item:hover{
+      background:rgba(102,126,234,.10);
+      color:var(--accent1);
+    }
+    .nav-item.active{
+      background:linear-gradient(135deg,var(--accent1),var(--accent2));
+      color:#fff;
+      box-shadow:0 10px 20px rgba(102,126,234,.25);
+    }
+    .nav-icon{font-size:18px}
+
+    /* MAIN */
+    main{
+      flex:1;
+      padding:34px;
+      overflow:auto;
+    }
+
+    header{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      margin-bottom:22px;
+    }
+    header h1{
+      margin:0;
+      font-size:28px;
+      font-weight:800;
+      color:#101828;
+    }
+    .status-badge{
+      background:linear-gradient(135deg,var(--accent1),var(--accent2));
+      color:#fff;
+      padding:8px 14px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:700;
+      box-shadow:0 10px 20px rgba(102,126,234,.25);
+      white-space:nowrap;
+    }
+
+    /* Cards / Layout */
+    .stats-grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+      gap:18px;
+      margin-bottom:22px;
+    }
+    .card{
+      background:#fff;
+      border-radius:18px;
+      box-shadow:0 10px 26px rgba(0,0,0,.06);
+      border:1px solid rgba(255,255,255,.6);
+    }
+    .card-pad{padding:22px}
+    .stat-label{
+      font-size:12px;
+      color:#667085;
+      font-weight:700;
+      text-transform:uppercase;
+      letter-spacing:.5px;
+      margin-bottom:10px;
+    }
+    .stat-value{
+      font-size:40px;
+      font-weight:800;
+      background:linear-gradient(135deg,var(--accent1),var(--accent2));
+      -webkit-background-clip:text;
+      -webkit-text-fill-color:transparent;
+      background-clip:text;
+      line-height:1.05;
+    }
+    .progress{
+      height:7px;background:#eef2f6;border-radius:999px;overflow:hidden;margin-top:14px;
+    }
+    .bar{
+      height:100%;
+      background:linear-gradient(90deg,var(--accent1),var(--accent2));
+      width:50%;
+      border-radius:999px;
+      transition:width .6s ease;
+    }
+
+    .section-title{
+      display:flex;align-items:center;gap:12px;
+      font-size:20px;font-weight:800;
+      color:#101828;
+      margin:8px 0 14px;
+    }
+    .section-icon{font-size:22px}
+
+    .content-section{display:none}
+    .content-section.active{display:block; animation:fadeIn .2s ease}
+    @keyframes fadeIn{
+      from{opacity:0; transform:translateY(8px)}
+      to{opacity:1; transform:translateY(0)}
+    }
+
+    /* Forms */
+    .form-grid{
+      display:grid;
+      grid-template-columns:repeat(4,minmax(0,1fr));
+      gap:14px;
+    }
+    label{
+      display:block;
+      font-size:12px;
+      font-weight:700;
+      color:#667085;
+      text-transform:uppercase;
+      letter-spacing:.5px;
+      margin:0 0 6px;
+    }
+    input,select,textarea{
+      width:100%;
+      padding:12px 14px;
+      border:2px solid #eef2f6;
+      border-radius:14px;
+      background:#f8fafc;
+      font-family:'Poppins',Arial,sans-serif;
+      font-size:14px;
+      color:#101828;
+      outline:none;
+      transition:all .2s ease;
+    }
+    input:focus,select:focus,textarea:focus{
+      border-color:rgba(102,126,234,.6);
+      background:#fff;
+      box-shadow:0 0 0 3px rgba(102,126,234,.12);
+    }
+    textarea{min-height:96px; resize:vertical}
+
+    /* Buttons */
+    .btn-row{display:flex;gap:12px;flex-wrap:wrap;margin-top:14px}
+    button{font-family:'Poppins',Arial,sans-serif}
+    .btn-primary{
+      border:none;
+      background:linear-gradient(135deg,var(--accent1),var(--accent2));
+      color:#fff;
+      padding:12px 18px;
+      border-radius:14px;
+      font-weight:800;
+      cursor:pointer;
+      box-shadow:0 10px 20px rgba(102,126,234,.25);
+      transition:transform .2s ease, box-shadow .2s ease;
+    }
+    .btn-primary:hover{transform:translateY(-1px); box-shadow:0 14px 26px rgba(102,126,234,.30)}
+    .btn-secondary{
+      border:none;
+      background:#f0f2f5;
+      color:#101828;
+      padding:12px 18px;
+      border-radius:14px;
+      font-weight:800;
+      cursor:pointer;
+      transition:background .2s ease;
+    }
+    .btn-secondary:hover{background:#e6e9ef}
+    .btn-danger{
+      border:none;
+      background:var(--danger);
+      color:#fff;
+      padding:10px 14px;
+      border-radius:12px;
+      font-weight:800;
+      cursor:pointer;
+    }
+    .small{
+      padding:8px 12px;
+      border-radius:12px;
+      font-size:12px;
+      font-weight:800;
+    }
+
+    /* Table */
+    .table-wrap{overflow:auto; max-height:65vh}
+    table{width:100%; border-collapse:collapse}
+    thead th{
+      position:sticky; top:0;
+      background:#f8fafc;
+      border-bottom:2px solid #eef2f6;
+      padding:14px 14px;
+      font-size:12px;
+      color:#667085;
+      text-transform:uppercase;
+      letter-spacing:.5px;
+      text-align:left;
+      white-space:nowrap;
+    }
+    tbody td{
+      padding:14px 14px;
+      border-bottom:1px solid #eef2f6;
+      font-size:13px;
+      color:#344054;
+      white-space:nowrap;
+    }
+    tbody tr:hover td{background:#fbfcff}
+    .footer-note{
+      padding:12px 16px;
+      color:#667085;
+      font-size:12px;
+    }
+
+    /* Chart card */
+    .chart-title{font-weight:800; color:#101828; margin-bottom:10px}
+    .chart-wrap{
+      height:380px;
+      overflow-x:auto;
+      overflow-y:hidden;
+      border:1px solid #eef2f6;
+      border-radius:14px;
+      background:#f8fafc;
+      padding:8px;
+    }
+    .toast{color:#667085; font-size:12px; margin-top:10px}
+
+    /* Responsive */
+    @media (max-width: 980px){
+      body{overflow:auto}
+      .container{flex-direction:column}
+      aside{width:100%}
+      main{padding:18px}
+      .form-grid{grid-template-columns:1fr}
+      nav{flex-direction:row; flex-wrap:wrap}
+      .nav-item{flex:1; min-width:140px; justify-content:center}
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- LOGIN OVERLAY -->
+  <div id="loginOverlay" style="
+    position:fixed; inset:0; z-index:9999;
+    display:flex; align-items:center; justify-content:center;
+    background:linear-gradient(135deg,#e9eef7 0%, #dbe4f3 100%);
+  ">
+    <div style="
+      width:min(420px,92vw);
+      background:#fff; border-radius:18px;
+      box-shadow:0 10px 26px rgba(0,0,0,.10);
+      padding:22px;
+    ">
+      <div style="font-size:20px;font-weight:800;margin-bottom:6px;">Login</div>
+      <div style="color:#667085;font-size:13px;margin-bottom:14px;">Enter password to continue.</div>
+
+      <label style="display:block;font-size:12px;font-weight:700;color:#667085;text-transform:uppercase;letter-spacing:.5px;margin:0 0 6px;">
+        Password
+      </label>
+      <input id="loginPass" type="password" placeholder="••••••••" style="
+        width:100%; padding:12px 14px; border:2px solid #eef2f6;
+        border-radius:14px; background:#f8fafc; font-family:Poppins,Arial;
+        font-size:14px; outline:none;
+      "/>
+
+      <div style="display:flex;gap:10px; margin-top:14px;">
+        <button id="loginBtn" class="btn-primary" style="flex:1;">Sign In</button>
+        <button id="loginClear" class="btn-secondary" type="button">Clear</button>
+      </div>
+
+      <div id="loginMsg" style="margin-top:10px;color:#667085;font-size:12px;"></div>
+    </div>
+  </div>
+
+  <div class="container">
+    <aside>
+      <div class="logo">
+        <div class="logo-icon">👥</div>
+        <span><?= appTitle ?></span>
+      </div>
+
+      <nav>
+        <button class="nav-item active" data-page="dashboard"><span class="nav-icon">📊</span> Dashboard</button>
+        <button class="nav-item" data-page="staff"><span class="nav-icon">👨‍💼</span> Staff</button>
+        <button class="nav-item" data-page="leave"><span class="nav-icon">📅</span> Add Leave</button>
+        <button class="nav-item" data-page="reports"><span class="nav-icon">📈</span> Reports</button>
+      </nav>
+    </aside>
+
+    <main>
+      <header>
+        <h1 id="pageTitle">Dashboard</h1>
+        <div class="status-badge" id="statusPill">Ready</div>
+      </header>
+
+      <!-- DASHBOARD -->
+      <section id="page-dashboard" class="content-section active">
+        <div class="stats-grid">
+          <div class="card card-pad">
+            <div class="stat-label">Total Employees</div>
+            <div class="stat-value" id="totalEmployees">—</div>
+            <div class="progress"><div class="bar" id="barEmp" style="width:70%"></div></div>
+          </div>
+          <div class="card card-pad">
+            <div class="stat-label">Total Departments</div>
+            <div class="stat-value" id="totalDepartments">—</div>
+            <div class="progress"><div class="bar" id="barDept" style="width:55%"></div></div>
+          </div>
+          <div class="card card-pad">
+            <div class="stat-label">Quick Actions</div>
+            <div class="btn-row">
+              <button class="btn-primary" onclick="showPage('staff')">Open Staff</button>
+              <button class="btn-secondary" onclick="showPage('leave')">Add Leave</button>
+              <button class="btn-secondary" onclick="showPage('reports')">Open Reports</button>
+            </div>
+            <div class="toast" id="dashNote"></div>
+          </div>
+        </div>
+
+        <div class="card card-pad">
+          <div class="chart-title">Remaining Leave (Annual vs Sick)</div>
+          <div class="chart-wrap" id="dashChartWrap">
+            <canvas id="dashChart"></canvas>
+          </div>
+          <div class="toast" id="chartToast"></div>
+        </div>
+      </section>
+
+      <!-- STAFF -->
+      <section id="page-staff" class="content-section">
+        <div class="section-title"><span class="section-icon">👨‍💼</span> Staff</div>
+
+        <div class="card card-pad" style="margin-bottom:18px">
+          <div class="form-grid" style="grid-template-columns: 2fr 2fr 1fr 1fr;">
+            <div>
+              <label>Search (ID / Name)</label>
+              <input id="staffSearch" placeholder="Search..." oninput="renderStaff()"/>
+            </div>
+            <div>
+              <label>Department</label>
+              <select id="deptFilter" onchange="renderStaff()"></select>
+            </div>
+            <div style="display:flex;align-items:flex-end;gap:10px">
+              <button class="btn-primary" onclick="openAddStaff()">➕ Add Staff</button>
+            </div>
+            <div style="display:flex;align-items:flex-end;gap:10px">
+              <button class="btn-secondary" onclick="loadStaff()">🔄 Refresh</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card" style="overflow:hidden">
+          <div class="table-wrap">
+            <table>
+              <thead><tr id="staffHead"></tr></thead>
+              <tbody id="staffBody"></tbody>
+            </table>
+          </div>
+          <div class="footer-note" id="staffToast"></div>
+        </div>
+
+        <!-- Staff chart (same as dashboard) -->
+        <div class="card card-pad" style="margin-top:18px">
+          <div class="chart-title">Staff Report: Remaining Leave (Annual vs Sick)</div>
+          <div class="chart-wrap" id="staffChartWrap">
+            <canvas id="staffChart"></canvas>
+          </div>
+          <div class="toast" id="staffChartToast"></div>
+        </div>
+
+        <!-- Add Staff Box -->
+        <div class="card card-pad" id="addStaffBox" style="margin-top:18px; display:none;">
+          <div class="section-title" style="margin:0 0 12px"><span class="section-icon">➕</span> Add Staff</div>
+
+          <div class="form-grid">
+            <div>
+              <label>Staff ID</label>
+              <input id="newId" placeholder="e.g. 1002462"/>
+            </div>
+            <div>
+              <label>Employee Name</label>
+              <input id="newName" placeholder="e.g. ADAMU IBRAHIM"/>
+            </div>
+            <div>
+              <label>Department</label>
+              <select id="newDept"></select>
+            </div>
+            <div>
+              <label>Annual Leave</label>
+              <input id="newAnnual" placeholder="number"/>
+            </div>
+            <div>
+              <label>Sick Leave</label>
+              <input id="newSick" placeholder="number"/>
+            </div>
+          </div>
+
+          <div class="btn-row">
+            <button class="btn-primary" onclick="submitAddStaff()">Save</button>
+            <button class="btn-secondary" onclick="closeAddStaff()">Cancel</button>
+          </div>
+          <div class="toast" id="addStaffToast"></div>
+        </div>
+      </section>
+
+      <!-- LEAVE -->
+      <section id="page-leave" class="content-section">
+        <div class="section-title"><span class="section-icon">📅</span> Add Leave</div>
+
+        <div class="card card-pad">
+          <div class="form-grid">
+            <div>
+              <label>Department</label>
+              <select id="leaveDept" onchange="loadStaffByDeptForLeave()"></select>
+            </div>
+            <div>
+              <label>Employee</label>
+              <select id="leaveStaff"></select>
+            </div>
+            <div>
+              <label>Type</label>
+              <select id="leaveType">
+                <option value="ANNUAL">ANNUAL</option>
+                <option value="SICK">SICK</option>
+              </select>
+            </div>
+            <div>
+              <label>Days</label>
+              <input id="leaveDays" placeholder="number"/>
+            </div>
+
+            <div>
+              <label>Start Date</label>
+              <input id="leaveStart" type="date"/>
+            </div>
+            <div>
+              <label>End Date</label>
+              <input id="leaveEnd" type="date"/>
+            </div>
+            <div>
+              <label>Approved By</label>
+              <input id="leaveApproved" placeholder="name"/>
+            </div>
+            <div>
+              <label>File No</label>
+              <input id="leaveFileNo" placeholder="optional"/>
+            </div>
+
+            <div style="grid-column: 1 / -1;">
+              <label>Reason</label>
+              <textarea id="leaveReason" placeholder="Reason..."></textarea>
+            </div>
+          </div>
+
+          <div class="btn-row">
+            <button class="btn-primary" onclick="submitLeave()">Save Leave</button>
+            <button class="btn-secondary" onclick="openEmployeeSheetFromLeave()">Open Employee Sheet</button>
+          </div>
+
+          <div class="toast" id="leaveToast"></div>
+        </div>
+      </section>
+
+      <!-- REPORTS -->
+      <section id="page-reports" class="content-section">
+        <div class="section-title"><span class="section-icon">📈</span> Reports</div>
+
+        <div class="card card-pad">
+          <div class="form-grid" style="grid-template-columns: 1fr 2fr 1fr 2fr;">
+            <div style="display:flex;align-items:flex-end">
+              <button class="btn-primary" onclick="runReportUI('all')">All Staff</button>
+            </div>
+
+            <div>
+              <label>Department</label>
+              <select id="reportDept"></select>
+            </div>
+
+            <div style="display:flex;align-items:flex-end">
+              <button class="btn-secondary" onclick="runReportUI('dept')">Department</button>
+            </div>
+
+            <div>
+              <label>Staff ID</label>
+              <input id="reportStaffId" placeholder="Enter staff ID"/>
+            </div>
+
+            <div style="display:flex;align-items:flex-end">
+              <button class="btn-secondary" onclick="runReportUI('individual')">Individual</button>
+            </div>
+          </div>
+
+          <div class="card" style="margin-top:16px; overflow:hidden; border:1px solid #eef2f6; box-shadow:none">
+            <div class="table-wrap">
+              <table>
+                <thead><tr id="reportHead"></tr></thead>
+                <tbody id="reportBody"></tbody>
+              </table>
+            </div>
+            <div class="footer-note" id="reportToast">Choose a report.</div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <script>
+    // ---------------------------
+    // STATE
+    // ---------------------------
+    let STAFF = { header: [], rows: [] }; // rows: array of arrays
+    let DEPTS = [];
+
+    const $ = (id)=>document.getElementById(id);
+
+    // ---------------------------
+    // NAV
+    // ---------------------------
+    document.querySelectorAll('.nav-item').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));
+        btn.classList.add('active');
+        showPage(btn.dataset.page);
+      });
+    });
+
+    function showPage(page){
+      // sections
+      ["dashboard","staff","leave","reports"].forEach(p=>{
+        $("page-"+p).classList.toggle("active", p===page);
+      });
+
+      // title
+      const titles = {
+        dashboard:"Dashboard",
+        staff:"Staff",
+        leave:"Add Leave",
+        reports:"Reports"
+      };
+      $("pageTitle").textContent = titles[page] || "Dashboard";
+
+      // load page data
+      if(page==="dashboard") loadDashboardChart();
+      if(page==="staff") loadStaff().then(loadStaffChart);
+      if(page==="leave") initLeave();
+      if(page==="reports") initReports();
+    }
+
+    function setStatus(text){ $("statusPill").textContent = text; }
+
+    // ---------------------------
+    // INIT
+    // ---------------------------
+    window.onload = async ()=>{
+      setStatus("Loading...");
+      await loadDepartments();
+      await loadStaff();
+      await loadDashboardChart();
+      setStatus("Ready");
+    };
+
+    // ---------------------------
+    // LOADERS
+    // ---------------------------
+    function loadDepartments(){
+      return new Promise((resolve,reject)=>{
+        google.script.run
+          .withSuccessHandler((deps)=>{
+            DEPTS = deps || [];
+
+            $("deptFilter").innerHTML =
+              `<option value="">All Departments</option>` +
+              DEPTS.map(d=>`<option value="${escapeAttr(d)}">${escapeHtml(d)}</option>`).join("");
+
+            $("newDept").innerHTML =
+              DEPTS.map(d=>`<option value="${escapeAttr(d)}">${escapeHtml(d)}</option>`).join("");
+
+            $("leaveDept").innerHTML =
+              `<option value="">Select Department</option>` +
+              DEPTS.map(d=>`<option value="${escapeAttr(d)}">${escapeHtml(d)}</option>`).join("");
+
+            $("reportDept").innerHTML =
+              `<option value="">Select Department</option>` +
+              DEPTS.map(d=>`<option value="${escapeAttr(d)}">${escapeHtml(d)}</option>`).join("");
+
+            resolve();
+          })
+          .withFailureHandler(err=>{ setStatus("Error"); alert(err.message||err); reject(err); })
+          .apiGetDepartments();
+      });
+    }
+
+    function loadStaff(){
+      setStatus("Loading staff...");
+      return new Promise((resolve,reject)=>{
+        google.script.run
+          .withSuccessHandler((res)=>{
+            STAFF = res || {header:[], rows:[]};
+
+            // Stats
+            $("totalEmployees").textContent = String((STAFF.rows||[]).length || 0);
+            $("totalDepartments").textContent = String((DEPTS||[]).length || 0);
+            $("dashNote").textContent = "Data source: STAFF_LIST (9 columns)";
+
+            // Progress bars (visual only)
+            $("barEmp").style.width  = Math.min(100, 20 + (STAFF.rows.length * 3)) + "%";
+            $("barDept").style.width = Math.min(100, 25 + (DEPTS.length * 6)) + "%";
+
+            renderStaffTableHeader();
+            renderStaff();
+
+            setStatus("Ready");
+            resolve();
+          })
+          .withFailureHandler(err=>{ setStatus("Error"); alert(err.message||err); reject(err); })
+          .apiGetStaffList();  // must return {header:[...], rows:[[...9 cols...], ...]}
+      });
+    }
+
+    // ---------------------------
+    // STAFF TABLE
+    // ---------------------------
+    function renderStaffTableHeader(){
+      const head = $("staffHead");
+      head.innerHTML = "";
+
+      (STAFF.header || []).forEach(h=>{
+        const th = document.createElement("th");
+        th.textContent = h;
+        head.appendChild(th);
+      });
+
+      const th = document.createElement("th");
+      th.textContent = "Actions";
+      head.appendChild(th);
+    }
+
+    function renderStaff(){
+      const q = ($("staffSearch").value || "").trim().toUpperCase();
+      const dept = ($("deptFilter").value || "").trim();
+
+      const body = $("staffBody");
+      body.innerHTML = "";
+
+      const rows = (STAFF.rows || []).filter(r=>{
+        const id = String(r[0]||"").toUpperCase();
+        const name = String(r[1]||"").toUpperCase();
+        const d = String(r[2]||"");
+        const okDept = !dept || d === dept;
+        const okQ = !q || id.includes(q) || name.includes(q);
+        return okDept && okQ;
+      });
+
+      rows.forEach(r=>{
+        const tr = document.createElement("tr");
+
+        // 9 columns
+        r.forEach(cell=>{
+          const td = document.createElement("td");
+          td.textContent = (cell === null || cell === undefined) ? "" : cell;
+          tr.appendChild(td);
+        });
+
+        const act = document.createElement("td");
+        act.innerHTML = `<button class="btn-secondary small" onclick="openEmployeeSheet('${String(r[0]).replace(/'/g,"\\'")}')">Open Sheet</button>`;
+        tr.appendChild(act);
+
+        body.appendChild(tr);
+      });
+
+      $("staffToast").textContent = `${rows.length} row(s) shown.`;
+    }
+
+    // ---------------------------
+    // ADD STAFF
+    // ---------------------------
+    function openAddStaff(){
+      $("addStaffBox").style.display = "block";
+      $("addStaffToast").textContent = "";
+    }
+    function closeAddStaff(){
+      $("addStaffBox").style.display = "none";
+    }
+
+    function submitAddStaff(){
+      const payload = {
+        staffId: $("newId").value,
+        name: $("newName").value,
+        department: $("newDept").value,
+        annual: $("newAnnual").value,
+        sick: $("newSick").value
+      };
+
+      $("addStaffToast").textContent = "Saving...";
+      google.script.run
+        .withSuccessHandler((msg)=>{
+          $("addStaffToast").textContent = msg || "Saved";
+          $("newId").value=""; $("newName").value=""; $("newAnnual").value=""; $("newSick").value="";
+          closeAddStaff();
+          loadStaff().then(loadStaffChart);
+          loadDashboardChart();
+        })
+        .withFailureHandler(err=>{
+          $("addStaffToast").textContent = (err && err.message) ? err.message : err;
+        })
+        .apiAddStaff(payload);
+    }
+
+    // ---------------------------
+    // OPEN EMPLOYEE SHEET
+    // ---------------------------
+    function openEmployeeSheet(staffId){
+      google.script.run
+        .withSuccessHandler((url)=> window.open(url, "_blank"))
+        .withFailureHandler(err=> alert(err.message||err))
+        .apiGetEmployeeSheetUrl(staffId);
+    }
+
+    // ---------------------------
+    // LEAVE
+    // ---------------------------
+    function initLeave(){
+      $("leaveToast").textContent = "";
+      $("leaveStaff").innerHTML = "";
+    }
+
+    function loadStaffByDeptForLeave(){
+      const dept = $("leaveDept").value;
+      if(!dept){ $("leaveStaff").innerHTML = ""; return; }
+
+      $("leaveToast").textContent = "Loading staff...";
+      google.script.run
+        .withSuccessHandler((list)=>{
+          const opts = (list || []).map(s=>`<option value="${escapeAttr(s.id)}">${escapeHtml(s.name)} (${escapeHtml(s.id)})</option>`).join("");
+          $("leaveStaff").innerHTML = opts;
+          $("leaveToast").textContent = "Ready.";
+        })
+        .withFailureHandler(err=> $("leaveToast").textContent = err.message||err)
+        .getStaffByDepartment(dept);
+    }
+
+    function submitLeave(){
+      const staffId = $("leaveStaff").value;
+      const staffText = $("leaveStaff").selectedOptions[0] ? $("leaveStaff").selectedOptions[0].textContent : "";
+
+      if(!staffId){ $("leaveToast").textContent = "Select employee."; return; }
+
+      const payload = {
+        staffId: staffId,
+        staffName: staffText,
+        type: $("leaveType").value,
+        days: Number($("leaveDays").value || 0),
+        startDate: $("leaveStart").value,
+        endDate: $("leaveEnd").value,
+        approvedBy: $("leaveApproved").value,
+        fileNo: $("leaveFileNo").value,
+        reason: $("leaveReason").value
+      };
+
+      $("leaveToast").textContent = "Saving leave...";
+      google.script.run
+        .withSuccessHandler(msg=>{
+          $("leaveToast").textContent = msg || "Saved";
+          loadStaff().then(loadStaffChart);
+          loadDashboardChart();
+        })
+        .withFailureHandler(err=> $("leaveToast").textContent = err.message||err)
+        .apiSaveLeave(payload);
+    }
+
+    function openEmployeeSheetFromLeave(){
+      const staffId = $("leaveStaff").value;
+      if(!staffId) return;
+      openEmployeeSheet(staffId);
+    }
+
+    // ---------------------------
+    // REPORTS
+    // ---------------------------
+    function initReports(){
+      $("reportToast").textContent = "Choose a report.";
+      $("reportHead").innerHTML = "";
+      $("reportBody").innerHTML = "";
+    }
+
+    function runReportUI(type){
+      $("reportToast").textContent = "Loading report...";
+      $("reportHead").innerHTML = "";
+      $("reportBody").innerHTML = "";
+
+      if(type==="all"){
+        google.script.run
+          .withSuccessHandler(drawReport)
+          .withFailureHandler(err=> $("reportToast").textContent = err.message||err)
+          .apiGetAllStaffReport();
+        return;
+      }
+
+      if(type==="dept"){
+        const dept = $("reportDept").value;
+        if(!dept){ $("reportToast").textContent = "Select department."; return; }
+        google.script.run
+          .withSuccessHandler(drawReport)
+          .withFailureHandler(err=> $("reportToast").textContent = err.message||err)
+          .apiGetDepartmentReport(dept);
+        return;
+      }
+
+      if(type==="individual"){
+        const id = ($("reportStaffId").value||"").trim();
+        if(!id){ $("reportToast").textContent = "Enter staff ID."; return; }
+        google.script.run
+          .withSuccessHandler(drawIndividualReport)
+          .withFailureHandler(err=> $("reportToast").textContent = err.message||err)
+          .apiGetIndividualReport(id);
+      }
+    }
+
+    function drawReport(r){
+      $("reportToast").textContent = r.title || "Report";
+      $("reportHead").innerHTML = (r.header||[]).map(h=>`<th>${escapeHtml(h)}</th>`).join("");
+      $("reportBody").innerHTML = (r.data||[]).map(row=>{
+        return "<tr>" + row.map(c=>`<td>${escapeHtml(String(c ?? ""))}</td>`).join("") + "</tr>";
+      }).join("");
+    }
+
+    function drawIndividualReport(r){
+      const title = (r.header && r.header.nameDept) ? r.header.nameDept : (r.title || "Employee Report");
+      $("reportToast").textContent = title;
+
+      $("reportHead").innerHTML =
+        `<th>Start Date</th><th>Reason</th><th>Approved By</th><th>Sick</th><th>Annual</th><th>File No</th><th>End Date</th>`;
+
+      // Satırlar
+      let html = (r.data||[]).map(row=>{
+        return "<tr>" + row.map(c=>`<td>${escapeHtml(String(c ?? ""))}</td>`).join("") + "</tr>";
+      }).join("");
+
+      // ✅ TOTAL USED
+      const t = r.totals || { sick:0, annual:0, total:0 };
+      html += `
+        <tr>
+          <td colspan="3" style="font-weight:800;">TOTAL USED</td>
+          <td style="font-weight:800;">${escapeHtml(String(t.sick))}</td>
+          <td style="font-weight:800;">${escapeHtml(String(t.annual))}</td>
+          <td colspan="2" style="font-weight:800;">Grand Total: ${escapeHtml(String(t.total))}</td>
+        </tr>
+      `;
+
+      // ✅ REMAINING (Remind Days) — E3 veya STAFF_LIST I
+      const rem = (r.remainingTotal ?? "");
+      const src = (r.remainFrom ?? "");
+      html += `
+        <tr>
+          <td colspan="5" style="font-weight:800;">REMAINING DAYS (from ${escapeHtml(src)})</td>
+          <td colspan="2" style="font-weight:800;">${escapeHtml(String(rem))}</td>
+        </tr>
+      `;
+
+      $("reportBody").innerHTML = html;
+    }
+
+    // ---------------------------
+    // DASHBOARD + STAFF CHARTS
+    // ---------------------------
+    function loadDashboardChart(){
+      if(!$("dashChart")) return Promise.resolve();
+      $("chartToast").textContent = "Loading chart...";
+
+      return new Promise((resolve,reject)=>{
+        google.script.run
+          .withSuccessHandler((d)=>{
+            $("chartToast").textContent = "";
+            drawBarChartForWrap("dashChart", "dashChartWrap", d.labels || [], d.annual || [], d.sick || []);
+            resolve();
+          })
+          .withFailureHandler(err=>{
+            $("chartToast").textContent = err.message || err;
+            reject(err);
+          })
+          .apiGetDashboardChartData();
+      });
+    }
+
+    function loadStaffChart(){
+      if(!$("staffChart")) return;
+      $("staffChartToast").textContent = "Loading chart...";
+      google.script.run
+        .withSuccessHandler((d)=>{
+          $("staffChartToast").textContent = "";
+          drawBarChartForWrap("staffChart", "staffChartWrap", d.labels || [], d.annual || [], d.sick || []);
+        })
+        .withFailureHandler(err=>{
+          $("staffChartToast").textContent = err.message || err;
+        })
+        .apiGetDashboardChartData();
+    }
+
+    function drawBarChartForWrap(canvasId, wrapId, labels, annual, sick){
+      const canvas = document.getElementById(canvasId);
+      const ctx = canvas.getContext("2d");
+
+      const wrap = document.getElementById(wrapId);
+      const baseW = (wrap ? wrap.clientWidth : canvas.parentElement.clientWidth) || 900;
+
+      // enough space per item so names fit
+      const minPerItem = 62;
+      const w = Math.max(baseW, labels.length * minPerItem);
+      const h = 380;
+
+      canvas.width  = Math.floor(w * devicePixelRatio);
+      canvas.height = Math.floor(h * devicePixelRatio);
+      canvas.style.width  = w + "px";
+      canvas.style.height = h + "px";
+
+      ctx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0);
+      ctx.clearRect(0,0,w,h);
+
+      const padL = 46, padR = 14, padT = 18, padB = 160;
+      const cw = w - padL - padR;
+      const ch = h - padT - padB;
+
+      const maxVal = Math.max(1, ...annual, ...sick);
+      const yMax = Math.ceil(maxVal / 5) * 5;
+
+      // grid
+      ctx.strokeStyle = "rgba(16,24,40,.10)";
+      ctx.fillStyle = "rgba(16,24,40,.55)";
+      ctx.font = "12px Poppins, Arial";
+
+      for(let i=0;i<=5;i++){
+        const y = padT + (ch * i/5);
+        ctx.beginPath();
+        ctx.moveTo(padL, y);
+        ctx.lineTo(padL+cw, y);
+        ctx.stroke();
+        const val = Math.round(yMax * (1 - i/5));
+        ctx.fillText(String(val), 10, y+4);
+      }
+
+      const n = labels.length;
+      if(!n){
+        ctx.fillStyle = "rgba(16,24,40,.55)";
+        ctx.fillText("No data", padL, padT+20);
+        return;
+      }
+
+      const groupW = cw / n;
+      const barW = Math.max(8, Math.min(18, groupW * 0.28));
+      const gap = Math.max(4, barW * 0.45);
+
+      const colAnnual = "rgba(102,126,234,.85)";
+      const colSick   = "rgba(255,107,107,.85)";
+
+      function yFor(v){ return padT + ch - (v / yMax) * ch; }
+
+      for(let i=0;i<n;i++){
+        const xCenter = padL + groupW*i + groupW/2;
+
+        const a = annual[i] || 0;
+        const s = sick[i] || 0;
+
+        const xA = xCenter - barW - gap/2;
+        const xS = xCenter + gap/2;
+
+        ctx.fillStyle = colAnnual;
+        const yA = yFor(a);
+        ctx.fillRect(xA, yA, barW, padT+ch - yA);
+
+        ctx.fillStyle = colSick;
+        const yS = yFor(s);
+        ctx.fillRect(xS, yS, barW, padT+ch - yS);
+
+        // vertical labels (below chart)
+        ctx.save();
+        ctx.translate(xCenter, padT + ch + 110);
+        ctx.rotate(-Math.PI / 2);
+        ctx.fillStyle = "rgba(16,24,40,.65)";
+        ctx.font = "11px Poppins, Arial";
+        const lab = (labels[i] || "");
+        const shortLabel = lab.length > 22 ? (lab.slice(0,22) + "…") : lab;
+        ctx.textAlign = "left";
+        ctx.textBaseline = "middle";
+        ctx.fillText(shortLabel, 0, 0);
+        ctx.restore();
+      }
+
+      // legend
+      ctx.fillStyle = colAnnual;
+      ctx.fillRect(padL, 6, 10, 10);
+      ctx.fillStyle = "rgba(16,24,40,.65)";
+      ctx.fillText("Remaining Annual", padL+14, 15);
+
+      ctx.fillStyle = colSick;
+      ctx.fillRect(padL+180, 6, 10, 10);
+      ctx.fillStyle = "rgba(16,24,40,.65)";
+      ctx.fillText("Remaining Sick", padL+194, 15);
+    }
+
+    // ---------------------------
+    // HELPERS
+    // ---------------------------
+    function escapeHtml(s){
+      return String(s)
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;")
+        .replaceAll("'","&#039;");
+    }
+    function escapeAttr(s){ return escapeHtml(s); }
+
+      // ---------------------------
+    // AUTH
+    // ---------------------------
+    let AUTH_TOKEN = "";
+
+    function showLogin(msg){
+      document.getElementById("loginOverlay").style.display = "flex";
+      if (msg) document.getElementById("loginMsg").textContent = msg;
+    }
+
+    function hideLogin(){
+      document.getElementById("loginOverlay").style.display = "none";
+      document.getElementById("loginMsg").textContent = "";
+    }
+
+    function saveToken(t){
+      AUTH_TOKEN = t || "";
+      try { sessionStorage.setItem("AUTH_TOKEN", AUTH_TOKEN); } catch(e){}
+    }
+
+    function loadToken(){
+      try { AUTH_TOKEN = sessionStorage.getItem("AUTH_TOKEN") || ""; } catch(e){ AUTH_TOKEN=""; }
+    }
+
+    function checkAuth(){
+      return new Promise((resolve,reject)=>{
+        loadToken();
+        if(!AUTH_TOKEN){ showLogin(""); return resolve(false); }
+
+        google.script.run
+          .withSuccessHandler(res=>{
+            if(res && res.ok){
+              hideLogin();
+              resolve(true);
+            }else{
+              saveToken("");
+              showLogin(res && res.expired ? "Session expired. Please login again." : "Please login.");
+              resolve(false);
+            }
+          })
+          .withFailureHandler(err=>{
+            showLogin("Auth error: " + (err.message||err));
+            resolve(false);
+          })
+          .apiCheckAuth(AUTH_TOKEN);
+      });
+    }
+
+    function doLogin(){
+      const pass = (document.getElementById("loginPass").value || "").trim();
+      document.getElementById("loginMsg").textContent = "Signing in...";
+      google.script.run
+        .withSuccessHandler(res=>{
+          if(res && res.ok){
+            saveToken(res.token);
+            hideLogin();
+            // ✅ girişten sonra normal init
+            bootAppAfterLogin();
+          }else{
+            document.getElementById("loginMsg").textContent = (res && res.message) ? res.message : "Wrong password.";
+          }
+        })
+        .withFailureHandler(err=>{
+          document.getElementById("loginMsg").textContent = err.message || err;
+        })
+        .apiLogin(pass);
+    }
+
+    function doLogout(){
+      saveToken("");
+      google.script.run.apiLogout();
+      showLogin("Logged out.");
+    }
+
+    document.addEventListener("click", (e)=>{
+      if(e.target && e.target.id==="loginBtn") doLogin();
+      if(e.target && e.target.id==="loginClear"){
+        document.getElementById("loginPass").value="";
+        document.getElementById("loginMsg").textContent="";
+      }
+    });
+
+    // ✅ mevcut window.onload yerine bunu kullan
+    async function bootAppAfterLogin(){
+      // burası senin normal init akışın
+      setStatus("Loading...");
+      await loadDepartments();
+      await loadStaff();
+      await loadDashboardChart();
+      setStatus("Ready");
+    }
+
+    // Sayfa açılınca önce auth kontrol
+    window.onload = async ()=>{
+      setStatus("Auth...");
+      const ok = await checkAuth();
+      if(ok){
+        await bootAppAfterLogin();
+      }else{
+        setStatus("Login required");
+      }
+    };
+
+
+  </script>
+</body>
+</html>

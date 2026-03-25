@@ -1,0 +1,303 @@
+<!doctype html>
+<html>
+ <head><base target="_top">
+  <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: 'Segoe UI', Arial, sans-serif;
+        font-size: 13px;
+        padding: 15px;
+        background-color: #f5f5f5;
+      }
+
+      h3 {
+        color: #333;
+        margin-bottom: 20px;
+        font-size: 22px;
+        font-weight: 600;
+        border-bottom: 3px solid #667eea;
+        padding-bottom: 12px;
+      }
+
+      label {
+        display: block;
+        margin-top: 12px;
+        margin-bottom: 6px;
+        color: #555;
+        font-weight: 500;
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      select, input {
+        width: 100%;
+        box-sizing: border-box;
+        padding: 10px 12px;
+        border: 2px solid #e0e0e0;
+        border-radius: 6px;
+        font-size: 13px;
+        font-family: 'Segoe UI', Arial, sans-serif;
+        transition: all 0.3s ease;
+        background-color: #f8f9fa;
+      }
+
+      select:hover, input:hover {
+        border-color: #667eea;
+        background-color: #f0f2ff;
+      }
+
+      select:focus, input:focus {
+        outline: none;
+        border-color: #667eea;
+        background-color: white;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+      }
+
+      button {
+        margin-top: 10px;
+        padding: 10px 16px;
+        border: none;
+        border-radius: 6px;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .btn-row {
+        display: flex;
+        gap: 8px;
+        margin-top: 16px;
+      }
+
+      .btn-row button {
+        flex: 1;
+        padding: 10px;
+      }
+
+      .btn-row button:first-child {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+      }
+
+      .btn-row button:first-child:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+      }
+
+      .btn-row button:first-child:active {
+        transform: translateY(0);
+      }
+
+      .btn-row button:last-child {
+        background-color: #e0e0e0;
+        color: #333;
+      }
+
+      .btn-row button:last-child:hover {
+        background-color: #d0d0d0;
+        transform: translateY(-2px);
+      }
+
+      .btn-row button:last-child:active {
+        transform: translateY(0);
+      }
+
+      .error-message {
+        color: #d32f2f;
+        background-color: #ffebee;
+        padding: 10px;
+        border-radius: 4px;
+        margin-bottom: 15px;
+        display: none;
+      }
+
+      .success-message {
+        color: #388e3c;
+        background-color: #e8f5e9;
+        padding: 10px;
+        border-radius: 4px;
+        margin-bottom: 15px;
+        display: none;
+      }
+    </style>
+ </head>
+
+ <body>
+  <div class="error-message" id="errorMsg"></div>
+  <div class="success-message" id="successMsg"></div>
+
+  <h3>Add Leave</h3>
+
+  <label>Department:</label>
+  <select id="dept" onchange="loadStaff()">
+    <option value="">Select…</option>
+  </select>
+
+  <label>Employee:</label>
+  <select id="staff">
+    <option value="">Select department first</option>
+  </select>
+
+  <label>Leave Type:</label>
+  <select id="type">
+    <option value="ANNUAL">Annual Leave</option>
+    <option value="SICK">Sick Leave</option>
+  </select>
+
+  <label>Number of Days:</label>
+  <input type="number" id="days" min="1">
+
+  <label>Reason / Explanation:</label>
+  <input type="text" id="reason">
+
+  <label>Approved By:</label>
+  <input type="text" id="approvedBy">
+
+  <label>File No:</label>
+  <input type="text" id="fileNo">
+
+  <label>Start Date:</label>
+  <input type="date" id="startDate">
+
+  <label>End Date:</label>
+  <input type="date" id="endDate">
+
+  <div class="btn-row">
+    <!-- ✅ submit button gets an ID (no event.target bug) -->
+    <button id="btnSubmit" type="button" onclick="submitForm()">ADD</button>
+    <button type="button" onclick="google.script.host.close()">Cancel</button>
+  </div>
+
+  <script>
+    // Load departments when the dialog opens
+    document.addEventListener('DOMContentLoaded', function() {
+      google.script.run
+        .withSuccessHandler(function(departments) {
+          var deptSelect = document.getElementById('dept');
+          departments.forEach(function(dept) {
+            var opt = document.createElement('option');
+            opt.value = dept;
+            opt.textContent = dept;
+            deptSelect.appendChild(opt);
+          });
+        })
+        .withFailureHandler(function(err) {
+          showError('Failed to load departments: ' + (err && err.message ? err.message : err));
+        })
+        .getDepartments();
+    });
+
+    function loadStaff() {
+      var dept = document.getElementById('dept').value;
+      var staffSel = document.getElementById('staff');
+
+      if (!dept) {
+        staffSel.innerHTML = '<option value="">Select department first</option>';
+        return;
+      }
+
+      google.script.run
+        .withSuccessHandler(function(list) {
+          staffSel.innerHTML = '';
+
+          if (!list || list.length === 0) {
+            var opt = document.createElement('option');
+            opt.value = '';
+            opt.textContent = 'No employees found in this department';
+            staffSel.appendChild(opt);
+            return;
+          }
+
+          var empty = document.createElement('option');
+          empty.value = '';
+          empty.textContent = 'Select employee';
+          staffSel.appendChild(empty);
+
+          list.forEach(function(item) {
+            var opt = document.createElement('option');
+            opt.value = item.id;
+            opt.textContent = item.name + ' (' + item.id + ')';
+            staffSel.appendChild(opt);
+          });
+        })
+        .withFailureHandler(function(err) {
+          showError('Failed to load employees: ' + (err && err.message ? err.message : err));
+        })
+        .getStaffByDepartment(dept);
+    }
+
+    function showError(message) {
+      var errorDiv = document.getElementById('errorMsg');
+      errorDiv.textContent = message;
+      errorDiv.style.display = 'block';
+      setTimeout(function() {
+        errorDiv.style.display = 'none';
+      }, 5000);
+    }
+
+    function showSuccess(message) {
+      var successDiv = document.getElementById('successMsg');
+      successDiv.textContent = message;
+      successDiv.style.display = 'block';
+      setTimeout(function() {
+        successDiv.style.display = 'none';
+      }, 3000);
+    }
+
+    function submitForm() {
+      var staffSel = document.getElementById('staff');
+      if (!staffSel.value) {
+        showError('Please select an employee.');
+        return;
+      }
+
+      var days = Number(document.getElementById('days').value);
+      if (!days || days <= 0) {
+        showError('Number of days must be 1 or greater.');
+        return;
+      }
+
+      var data = {
+        staffId:    staffSel.value,
+        staffName:  staffSel.options[staffSel.selectedIndex].text,
+        type:       document.getElementById('type').value,
+        days:       days,
+        reason:     document.getElementById('reason').value,
+        approvedBy: document.getElementById('approvedBy').value,
+        fileNo:     document.getElementById('fileNo').value,
+        startDate:  document.getElementById('startDate').value,
+        endDate:    document.getElementById('endDate').value
+      };
+
+      // ✅ Disable submit button safely (no "event" dependency)
+      var submitBtn = document.getElementById('btnSubmit');
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'SAVING...';
+
+      google.script.run
+        .withSuccessHandler(function(msg) {
+          showSuccess(msg);
+          setTimeout(function() {
+            google.script.host.close();
+          }, 1200);
+        })
+        .withFailureHandler(function(err) {
+          showError('Error: ' + (err && err.message ? err.message : err));
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'ADD';
+        })
+        .saveLeave(data);
+    }
+  </script>
+ </body>
+</html>
