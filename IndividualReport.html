@@ -3,78 +3,235 @@
 <head>
   <base target="_top">
   <style>
-    body { font-family: Arial; padding: 20px; background:#f5f5f5; }
-    h2 { text-align:center; }
-    .info-box {
-      background:#fff;
-      padding:15px;
-      border-radius:8px;
-      box-shadow:0 2px 6px rgba(0,0,0,.2);
-      margin-bottom:20px;
+    :root{
+      --bg:#f2f5fb;
+      --card:#fff;
+      --line:#dbe3f0;
+      --text:#12233d;
+      --muted:#5d6b82;
+      --head:#0b3d91;
+      --accent:#2563eb;
     }
-    .info-row { display:flex; justify-content:space-between; }
-    table { width:100%; border-collapse:collapse; background:white; }
-    th {
-      background:#0b3d91;
-      color:white;
-      padding:8px;
-      border:1px solid #ccc;
+
+    *{ box-sizing: border-box; }
+
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      padding: 20px;
+      background: var(--bg);
+      color: var(--text);
     }
-    td {
-      padding:6px;
-      border:1px solid #ccc;
+
+    .container{
+      max-width: 1200px;
+      margin: 0 auto;
+      background: var(--card);
+      border-radius: 14px;
+      box-shadow: 0 6px 24px rgba(9,31,67,.12);
+      padding: 18px;
+    }
+
+    h2 {
       text-align:center;
+      margin: 4px 0 14px;
     }
-    .footer-buttons { margin-top:20px; text-align:center; }
+
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .card {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 10px;
+      background: #f8fbff;
+    }
+
+    .label { font-size: 11px; color: var(--muted); text-transform: uppercase; }
+    .value { font-weight: 700; font-size: 20px; margin-top: 2px; }
+
+    .table-wrap {
+      border:1px solid var(--line);
+      border-radius:10px;
+      overflow:auto;
+      max-height:58vh;
+    }
+
+    table { width:100%; border-collapse:collapse; background:white; }
+
+    thead th {
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      background:var(--head);
+      color:white;
+      padding:9px;
+      border:1px solid #2f4f84;
+      font-size: 12px;
+    }
+
+    td {
+      padding:8px;
+      border:1px solid var(--line);
+      text-align:center;
+      font-size:12px;
+    }
+
+    tbody tr:nth-child(even) td { background:#f7faff; }
+
+    .footer-total td {
+      background: #edf4ff !important;
+      font-weight: 700;
+    }
+
+    .footer-buttons {
+      margin-top:12px;
+      display:flex;
+      justify-content:flex-end;
+      gap:8px;
+      flex-wrap:wrap;
+    }
+
     button {
-      padding:10px 25px;
-      margin:5px;
+      padding:10px 14px;
       border:none;
-      border-radius:5px;
+      border-radius:8px;
       cursor:pointer;
+      color:#fff;
+      font-weight:600;
     }
-    .printBtn { background:#0b3d91; color:white; }
-    .closeBtn { background:#666; color:white; }
+
+    .printBtn { background:var(--head); }
+    .csvBtn { background:var(--accent); }
+    .closeBtn { background:#64748b; }
+
+    @media print {
+      body { background:#fff; padding:0; }
+      .container { box-shadow:none; border-radius:0; padding:0; }
+      .footer-buttons { display:none; }
+      .table-wrap { max-height:none; border:none; }
+    }
   </style>
 </head>
 
 <body>
+<div class="container">
+  <h2>Employee Report</h2>
 
-<h2>Employee Report</h2>
+  <div class="info-grid">
+    <div class="card">
+      <div class="label">Name / Dept</div>
+      <div class="value" style="font-size:16px; line-height:1.2;"><?= header.nameDept ?></div>
+    </div>
+    <div class="card">
+      <div class="label">Annual Entitled</div>
+      <div class="value" id="entAnnual"><?= header.annual ?></div>
+    </div>
+    <div class="card">
+      <div class="label">Sick Entitled</div>
+      <div class="value" id="entSick"><?= header.sick ?></div>
+    </div>
+    <div class="card">
+      <div class="label">Remaining Days</div>
+      <div class="value" id="remain"><?= header.remain ?></div>
+    </div>
+    <div class="card">
+      <div class="label">Total Leave Used</div>
+      <div class="value" id="usedTotal">0</div>
+    </div>
+  </div>
 
-<div class="info-box">
-  <div class="info-row"><b>Name / Dept:</b> <?= header.nameDept ?></div>
-  <div class="info-row"><b>Annual Leave:</b> <?= header.annual ?></div>
-  <div class="info-row"><b>Sick Leave:</b> <?= header.sick ?></div>
-  <div class="info-row"><b>Remaining Days:</b> <?= header.remain ?></div>
+  <div class="table-wrap">
+    <table id="empReport">
+      <thead>
+        <tr>
+          <th>Leave Date</th>
+          <th>Reason</th>
+          <th>Approved By</th>
+          <th>Sick</th>
+          <th>Annual</th>
+          <th>File No</th>
+          <th>Return Date</th>
+        </tr>
+      </thead>
+      <tbody>
+        <? for (var i = 0; i < data.length; i++) { ?>
+          <tr>
+            <? for (var j = 0; j < data[i].length; j++) { ?>
+              <td><?= data[i][j] ?></td>
+            <? } ?>
+          </tr>
+        <? } ?>
+      </tbody>
+      <tfoot>
+        <tr class="footer-total">
+          <td colspan="3">TOTAL USED</td>
+          <td id="totalSick">0</td>
+          <td id="totalAnnual">0</td>
+          <td colspan="2" id="recordCount">Records: 0</td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+
+  <div class="footer-buttons">
+    <button class="csvBtn" onclick="exportCsv()">Export CSV</button>
+    <button class="printBtn" onclick="window.print()">Print / PDF</button>
+    <button class="closeBtn" onclick="google.script.host.close()">Close</button>
+  </div>
 </div>
 
+<script>
+  function toNumber(v) {
+    var n = Number(String(v || '').replace(/,/g, '').trim());
+    return isNaN(n) ? 0 : n;
+  }
 
-<table>
-<tr>
-  <th>Leave Date</th>
-  <th>Reason</th>
-  <th>Approved By</th>
-  <th>Sick</th>
-  <th>Annual</th>
-  <th>File No</th>
-  <th>Return Date</th>
-</tr>
+  function refreshTotals() {
+    var rows = Array.from(document.querySelectorAll('#empReport tbody tr'));
+    var totalSick = 0;
+    var totalAnnual = 0;
 
-<? for (var i = 0; i < data.length; i++) { ?>
-<tr>
-<? for (var j = 0; j < data[i].length; j++) { ?>
-<td><?= data[i][j] ?></td>
-<? } ?>
-</tr>
-<? } ?>
+    rows.forEach(function(r){
+      var tds = r.querySelectorAll('td');
+      totalSick += toNumber(tds[3] ? tds[3].textContent : 0);
+      totalAnnual += toNumber(tds[4] ? tds[4].textContent : 0);
+    });
 
-</table>
+    document.getElementById('totalSick').textContent = totalSick;
+    document.getElementById('totalAnnual').textContent = totalAnnual;
+    document.getElementById('usedTotal').textContent = totalSick + totalAnnual;
+    document.getElementById('recordCount').textContent = 'Records: ' + rows.length;
+  }
 
-<div class="footer-buttons">
-  <button class="printBtn" onclick="window.print()">Print / PDF</button>
-  <button class="closeBtn" onclick="google.script.host.close()">Close</button>
-</div>
+  function exportCsv() {
+    var lines = [];
+    var header = Array.from(document.querySelectorAll('#empReport thead th')).map(function(h){
+      return '"' + String(h.textContent || '').replace(/"/g, '""') + '"';
+    });
+    lines.push(header.join(','));
+
+    Array.from(document.querySelectorAll('#empReport tbody tr')).forEach(function(row){
+      var cols = Array.from(row.querySelectorAll('td')).map(function(td){
+        return '"' + String(td.textContent || '').replace(/"/g, '""') + '"';
+      });
+      lines.push(cols.join(','));
+    });
+
+    var csv = lines.join('\n');
+    var blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    var link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'employee-report.csv';
+    link.click();
+    URL.revokeObjectURL(link.href);
+  }
+
+  refreshTotals();
+</script>
 
 </body>
 </html>
