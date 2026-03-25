@@ -3,130 +3,318 @@
   <head>
     <base target="_top">
     <style>
+      :root{
+        --bg:#f2f5fb;
+        --card:#ffffff;
+        --text:#12233d;
+        --muted:#5d6b82;
+        --line:#dbe3f0;
+        --head:#1f487e;
+        --accent:#2c6cd6;
+      }
+
+      * { box-sizing: border-box; }
 
       body {
-        font-family: 'Arial';
-        padding: 25px;
-        background: #f6f8fa;
+        font-family: 'Segoe UI', Arial, sans-serif;
+        padding: 22px;
+        background: var(--bg);
+        color: var(--text);
       }
 
       .report-container {
-        background: white;
-        padding: 25px;
-        border-radius: 12px;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.15);
-        max-width: 1100px;
+        background: var(--card);
+        padding: 22px;
+        border-radius: 14px;
+        box-shadow: 0 6px 24px rgba(9,31,67,0.12);
+        max-width: 1200px;
         margin: auto;
       }
 
-      /* LOGO */
       .logo {
-        width: 140px;
+        width: 120px;
         display: block;
-        margin: 0 auto 15px auto;
+        margin: 0 auto 10px auto;
       }
 
       h2 {
         text-align: center;
-        font-size: 22px;
-        margin-bottom: 20px;
+        font-size: 24px;
+        margin: 6px 0 18px;
+        color: var(--text);
+        letter-spacing: .4px;
+      }
+
+      .toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 12px;
+      }
+
+      .toolbar-left,
+      .toolbar-right{
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+
+      .input,
+      .select {
+        border: 1px solid var(--line);
+        border-radius: 9px;
+        padding: 9px 10px;
+        min-width: 210px;
+        font-size: 13px;
+        outline: none;
+      }
+
+      .stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 10px;
+        margin: 10px 0 14px;
+      }
+
+      .stat-box {
+        border: 1px solid var(--line);
+        background: #f8fbff;
+        border-radius: 10px;
+        padding: 10px;
+      }
+
+      .stat-title {
+        font-size: 11px;
+        color: var(--muted);
         text-transform: uppercase;
-        color: #333;
-        letter-spacing: 1px;
+      }
+
+      .stat-value {
+        font-size: 22px;
+        font-weight: 700;
+        margin-top: 4px;
+        color: var(--text);
+      }
+
+      .table-wrap {
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        overflow: auto;
+        max-height: 65vh;
       }
 
       table {
         width: 100%;
         border-collapse: collapse;
-        margin-top: 25px;
       }
 
-      th {
-        background: #1f487e;
-        color: white;
+      thead th {
+        position: sticky;
+        top: 0;
+        z-index: 2;
+        background: var(--head);
+        color: #fff;
         padding: 10px;
-        font-size: 14px;
-        border: 1px solid #ccc;
+        font-size: 13px;
+        border: 1px solid #2a5b9e;
+        white-space: nowrap;
       }
 
       td {
         padding: 8px;
         font-size: 13px;
-        border: 1px solid #ccc;
+        border: 1px solid var(--line);
         text-align: center;
+        background: #fff;
       }
 
-      tr:nth-child(even) {
-        background: #eef3f9;
+      tbody tr:nth-child(even) td {
+        background: #f7faff;
       }
 
-      /* BUTTONS */
       .btn {
-        margin-top: 25px;
-        padding: 12px;
-        width: 48%;
-        font-size: 15px;
+        padding: 10px 12px;
+        min-width: 130px;
+        font-size: 13px;
         border: none;
-        border-radius: 8px;
+        border-radius: 9px;
         cursor: pointer;
+        font-weight: 600;
       }
 
-      .btn-print {
-        background: #1f487e;
-        color: white;
-      }
+      .btn-primary { background: var(--head); color: #fff; }
+      .btn-neutral { background: #5c6573; color: #fff; }
+      .btn-accent { background: var(--accent); color: #fff; }
 
-      .btn-close {
-        background: #555;
-        color: white;
-      }
-
-      .btn-container {
+      .footer-actions {
         display: flex;
-        justify-content: space-between;
+        justify-content: flex-end;
+        gap: 8px;
+        margin-top: 12px;
       }
 
+      @media print {
+        body { background: #fff; padding: 0; }
+        .report-container { box-shadow: none; border-radius: 0; max-width: 100%; }
+        .toolbar, .footer-actions { display: none !important; }
+        .table-wrap { max-height: none; border: none; }
+      }
     </style>
   </head>
 
   <body>
-
     <div class="report-container">
-
-      <!-- LOGO -->
-      <img src="https://opentech244.my.canva.site/_assets/media/8e7fdd018399237ecd79240faf30e209.jpg" class="logo">
-
-      <!-- Dynamic Title -->
+      <img src="https://opentech244.my.canva.site/_assets/media/8e7fdd018399237ecd79240faf30e209.jpg" class="logo" alt="Company Logo">
       <h2><?= title ?></h2>
 
-      <!-- Dynamic Table -->
-      <table>
-        <thead>
-          <tr>
-            <? for (let i = 0; i < header.length; i++) { ?>
-              <th><?= header[i] ?></th>
-            <? } ?>
-          </tr>
-        </thead>
-
-        <tbody>
-          <? data.forEach(function(row){ ?>
-            <tr>
-              <? row.forEach(function(cell){ ?>
-                <td><?= cell ?></td>
-              <? }) ?>
-            </tr>
-          <? }) ?>
-        </tbody>
-      </table>
-
-      <!-- BUTTONS -->
-      <div class="btn-container">
-        <button class="btn btn-print" onclick="window.print()">Print / Save PDF</button>
-        <button class="btn btn-close" onclick="google.script.host.close()">Close</button>
+      <div class="toolbar">
+        <div class="toolbar-left">
+          <input id="searchInput" class="input" type="text" placeholder="Search employee, department..." oninput="filterRows()">
+          <select id="rowCount" class="select" onchange="filterRows()">
+            <option value="all">Show: All</option>
+            <option value="25">Show: 25</option>
+            <option value="50">Show: 50</option>
+            <option value="100">Show: 100</option>
+          </select>
+        </div>
+        <div class="toolbar-right">
+          <button class="btn btn-accent" onclick="exportCsv()">Export CSV</button>
+          <button class="btn btn-primary" onclick="window.print()">Print / Save PDF</button>
+          <button class="btn btn-neutral" onclick="google.script.host.close()">Close</button>
+        </div>
       </div>
 
+      <div class="stats">
+        <div class="stat-box">
+          <div class="stat-title">Visible Rows</div>
+          <div class="stat-value" id="visibleRows">0</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-title">Annual Used (Visible)</div>
+          <div class="stat-value" id="annualUsed">0</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-title">Sick Used (Visible)</div>
+          <div class="stat-value" id="sickUsed">0</div>
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <table id="reportTable">
+          <thead>
+            <tr>
+              <? for (let i = 0; i < header.length; i++) { ?>
+                <th><?= header[i] ?></th>
+              <? } ?>
+            </tr>
+          </thead>
+          <tbody>
+            <? data.forEach(function(row){ ?>
+              <tr>
+                <? row.forEach(function(cell){ ?>
+                  <td><?= cell ?></td>
+                <? }) ?>
+              </tr>
+            <? }) ?>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="footer-actions">
+        <button class="btn btn-accent" onclick="exportCsv()">Export CSV</button>
+        <button class="btn btn-primary" onclick="window.print()">Print / Save PDF</button>
+        <button class="btn btn-neutral" onclick="google.script.host.close()">Close</button>
+      </div>
     </div>
 
+    <script>
+      function toNumber(v) {
+        var n = Number(String(v || '').replace(/,/g, '').trim());
+        return isNaN(n) ? 0 : n;
+      }
+
+      function getColumnIndexByLabel(partialLabel) {
+        var heads = Array.from(document.querySelectorAll('#reportTable thead th'));
+        var target = String(partialLabel || '').toLowerCase();
+        return heads.findIndex(function(h){
+          return String(h.textContent || '').toLowerCase().indexOf(target) !== -1;
+        });
+      }
+
+      function refreshStats() {
+        var rows = Array.from(document.querySelectorAll('#reportTable tbody tr')).filter(function(r){
+          return r.style.display !== 'none';
+        });
+
+        var annualCol = getColumnIndexByLabel('annual leave used');
+        var sickCol = getColumnIndexByLabel('sick leave used');
+
+        var annualTotal = 0;
+        var sickTotal = 0;
+
+        rows.forEach(function(r){
+          var cells = r.querySelectorAll('td');
+          if (annualCol >= 0 && cells[annualCol]) annualTotal += toNumber(cells[annualCol].textContent);
+          if (sickCol >= 0 && cells[sickCol]) sickTotal += toNumber(cells[sickCol].textContent);
+        });
+
+        document.getElementById('visibleRows').textContent = rows.length;
+        document.getElementById('annualUsed').textContent = annualTotal;
+        document.getElementById('sickUsed').textContent = sickTotal;
+      }
+
+      function filterRows() {
+        var query = (document.getElementById('searchInput').value || '').toLowerCase().trim();
+        var rowCount = document.getElementById('rowCount').value;
+        var rows = Array.from(document.querySelectorAll('#reportTable tbody tr'));
+
+        var visibleIndex = 0;
+        rows.forEach(function(row){
+          var txt = row.textContent.toLowerCase();
+          var match = !query || txt.indexOf(query) !== -1;
+
+          if (match) {
+            visibleIndex++;
+            if (rowCount !== 'all' && visibleIndex > Number(rowCount)) {
+              row.style.display = 'none';
+            } else {
+              row.style.display = '';
+            }
+          } else {
+            row.style.display = 'none';
+          }
+        });
+
+        refreshStats();
+      }
+
+      function exportCsv() {
+        var heads = Array.from(document.querySelectorAll('#reportTable thead th')).map(function(h){
+          return '"' + String(h.textContent || '').replace(/"/g, '""') + '"';
+        });
+
+        var lines = [heads.join(',')];
+        Array.from(document.querySelectorAll('#reportTable tbody tr')).forEach(function(row){
+          if (row.style.display === 'none') return;
+          var cols = Array.from(row.querySelectorAll('td')).map(function(td){
+            return '"' + String(td.textContent || '').replace(/"/g, '""') + '"';
+          });
+          lines.push(cols.join(','));
+        });
+
+        var csv = lines.join('\n');
+        var blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        var link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = 'report.csv';
+        link.click();
+        URL.revokeObjectURL(link.href);
+      }
+
+      filterRows();
+    </script>
   </body>
 </html>
