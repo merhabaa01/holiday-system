@@ -3,19 +3,84 @@
 <head>
   <base target="_top">
   <style>
-    body { font-family: Arial; padding: 20px; }
-    h2 { text-align: center; }
+    :root{
+      --bg:#f2f5fb;
+      --card:#fff;
+      --line:#dbe3f0;
+      --text:#12233d;
+      --head:#0b3d91;
+      --accent:#2563eb;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      padding: 16px;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    h2 {
+      text-align: center;
+      margin: 4px 0 14px;
+    }
+
+    .section {
+      border: 1px solid var(--line);
+      background: var(--card);
+      border-radius: 10px;
+      padding: 12px;
+      margin-top: 10px;
+      box-shadow: 0 3px 10px rgba(9,31,67,.06);
+    }
+
+    .hint{
+      font-size: 12px;
+      color: #607089;
+      margin-bottom: 8px;
+      line-height: 1.4;
+    }
+
+    h3 {
+      margin: 0 0 8px;
+      font-size: 15px;
+      color: var(--head);
+    }
+
     button, select {
       width: 100%;
       padding: 10px;
-      margin-top: 12px;
-      font-size: 14px;
-    }
-    .section {
-      border: 1px solid #ccc;
-      padding: 15px;
-      margin-top: 20px;
+      margin-top: 8px;
       border-radius: 8px;
+      border: 1px solid var(--line);
+      font-size: 13px;
+    }
+
+    button {
+      background: var(--head);
+      color: white;
+      border: none;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #0e4cb6;
+    }
+
+    .quick {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .quick button {
+      background: var(--accent);
+      margin-top: 0;
+      padding: 8px;
+      font-size: 12px;
     }
   </style>
 </head>
@@ -23,24 +88,24 @@
 <body>
 <h2>📄 Generate Report</h2>
 
-<!-- ALL STAFF -->
 <div class="section">
   <h3>All Staff Report</h3>
+  <div class="hint">Tüm personel verilerini tek tabloda getirir. Açılan raporda arama, satır limiti ve CSV export vardır.</div>
   <button onclick="runAll()">Generate</button>
 </div>
 
-<!-- DEPARTMENT -->
 <div class="section">
   <h3>Department Report</h3>
+  <div class="hint">Bölüm seçin, sadece ilgili ekip listelensin.</div>
   <select id="deptSelect">
     <option value="">Select Department</option>
   </select>
   <button onclick="runDept()">Generate</button>
 </div>
 
-<!-- INDIVIDUAL -->
 <div class="section">
   <h3>Individual Report</h3>
+  <div class="hint">Önce bölüm, sonra çalışan seçin. Rapor içinde toplamlar otomatik hesaplanır.</div>
 
   <select id="indDept" onchange="loadEmployees()">
     <option value="">Select Department</option>
@@ -49,6 +114,11 @@
   <select id="indEmp">
     <option value="">Select Employee</option>
   </select>
+
+  <div class="quick">
+    <button onclick="pickFirstEmployee()">Use First Employee</button>
+    <button onclick="clearSelections()">Clear</button>
+  </div>
 
   <button onclick="runIndividual()">Generate</button>
 </div>
@@ -72,7 +142,7 @@ function loadEmployees() {
 
   google.script.run.withSuccessHandler(function(list){
     list.forEach(e => {
-      emp.add(new Option(e.name, e.id));
+      emp.add(new Option(e.name + ' (' + e.id + ')', e.id));
     });
   }).getStaffByDepartment(dept);
 }
@@ -91,6 +161,19 @@ function runIndividual() {
   const id = document.getElementById("indEmp").value;
   if (!id) return alert("Select employee");
   google.script.run.showIndividualReportById(id);
+}
+
+function pickFirstEmployee() {
+  const emp = document.getElementById("indEmp");
+  if (emp.options.length > 1) {
+    emp.selectedIndex = 1;
+  }
+}
+
+function clearSelections() {
+  document.getElementById('deptSelect').value = '';
+  document.getElementById('indDept').value = '';
+  document.getElementById('indEmp').innerHTML = "<option value=''>Select Employee</option>";
 }
 </script>
 </body>
