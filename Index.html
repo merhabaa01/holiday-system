@@ -285,37 +285,6 @@
       color:#667085;
       font-size:12px;
     }
-    .report-toolbar{
-      display:flex;
-      flex-wrap:wrap;
-      gap:10px;
-      margin:14px 0 10px;
-      align-items:center;
-      justify-content:space-between;
-    }
-    .report-tools{display:flex; gap:8px; flex-wrap:wrap}
-    .report-tools input,.report-tools select{
-      min-width:170px;
-      padding:10px 12px;
-      border:2px solid #eef2f6;
-      border-radius:12px;
-      background:#f8fafc;
-      font-size:13px;
-    }
-    .report-stats{
-      display:grid;
-      grid-template-columns:repeat(auto-fit,minmax(170px,1fr));
-      gap:10px;
-      margin-bottom:10px;
-    }
-    .report-stat{
-      border:1px solid #eef2f6;
-      border-radius:12px;
-      padding:10px 12px;
-      background:#fafbff;
-    }
-    .report-stat .k{font-size:11px; color:#667085; text-transform:uppercase}
-    .report-stat .v{font-size:22px; font-weight:800; color:#101828}
 
     /* Chart card */
     .chart-title{font-weight:800; color:#101828; margin-bottom:10px}
@@ -596,28 +565,6 @@
             </div>
           </div>
 
-          <div class="report-toolbar">
-            <div class="report-tools">
-              <input id="reportSearch" placeholder="Search in report..." oninput="applyReportFilter()"/>
-              <select id="reportLimit" onchange="applyReportFilter()">
-                <option value="all">Show All</option>
-                <option value="25">Top 25</option>
-                <option value="50">Top 50</option>
-                <option value="100">Top 100</option>
-              </select>
-            </div>
-            <div class="report-tools">
-              <button class="btn-secondary small" onclick="exportReportCsv()">Export CSV</button>
-              <button class="btn-secondary small" onclick="window.print()">Print</button>
-            </div>
-          </div>
-
-          <div class="report-stats">
-            <div class="report-stat"><div class="k">Visible Rows</div><div class="v" id="reportRowCount">0</div></div>
-            <div class="report-stat"><div class="k">Annual Used</div><div class="v" id="reportAnnualUsed">0</div></div>
-            <div class="report-stat"><div class="k">Sick Used</div><div class="v" id="reportSickUsed">0</div></div>
-          </div>
-
           <div class="card" style="margin-top:16px; overflow:hidden; border:1px solid #eef2f6; box-shadow:none">
             <div class="table-wrap">
               <table>
@@ -639,7 +586,6 @@
     // ---------------------------
     let STAFF = { header: [], rows: [] }; // rows: array of arrays
     let DEPTS = [];
-    let REPORT_CACHE = { title: "", header: [], data: [] };
 
     const $ = (id)=>document.getElementById(id);
 
@@ -911,10 +857,6 @@
       $("reportToast").textContent = "Choose a report.";
       $("reportHead").innerHTML = "";
       $("reportBody").innerHTML = "";
-      $("reportSearch").value = "";
-      $("reportLimit").value = "all";
-      REPORT_CACHE = { title: "", header: [], data: [] };
-      updateReportStats([]);
     }
 
     function runReportUI(type){
@@ -951,100 +893,47 @@
     }
 
     function drawReport(r){
-      REPORT_CACHE = {
-        title: r.title || "Report",
-        header: r.header || [],
-        data: r.data || []
-      };
-      $("reportToast").textContent = REPORT_CACHE.title;
-      applyReportFilter();
+      $("reportToast").textContent = r.title || "Report";
+      $("reportHead").innerHTML = (r.header||[]).map(h=>`<th>${escapeHtml(h)}</th>`).join("");
+      $("reportBody").innerHTML = (r.data||[]).map(row=>{
+        return "<tr>" + row.map(c=>`<td>${escapeHtml(String(c ?? ""))}</td>`).join("") + "</tr>";
+      }).join("");
     }
 
     function drawIndividualReport(r){
       const title = (r.header && r.header.nameDept) ? r.header.nameDept : (r.title || "Employee Report");
-      const rows = (r.data || []).map(row => row.slice());
-      const t = r.totals || { sick:0, annual:0, total:0 };
-      const rem = (r.remainingTotal ?? "");
-      const src = (r.remainFrom ?? "");
-
-      rows.push([
-        "TOTAL USED", "", "",
-        String(t.sick ?? 0),
-        String(t.annual ?? 0),
-        "Grand Total",
-        String(t.total ?? 0)
-      ]);
-      rows.push([
-        "REMAINING DAYS", "", "",
-        "",
-        "",
-        `Source: ${src}`,
-        String(rem)
-      ]);
-
-      REPORT_CACHE = {
-        title,
-        header: ["Start Date","Reason","Approved By","Sick","Annual","File No","End Date"],
-        data: rows
-      };
       $("reportToast").textContent = title;
-      applyReportFilter();
-    }
 
-    function applyReportFilter(){
-      const query = ($("reportSearch").value || "").trim().toLowerCase();
-      const limitRaw = $("reportLimit").value;
-      const limit = (limitRaw === "all") ? Number.MAX_SAFE_INTEGER : Number(limitRaw || 0);
+      $("reportHead").innerHTML =
+        `<th>Start Date</th><th>Reason</th><th>Approved By</th><th>Sick</th><th>Annual</th><th>File No</th><th>End Date</th>`;
 
-      $("reportHead").innerHTML = (REPORT_CACHE.header||[]).map(h=>`<th>${escapeHtml(h)}</th>`).join("");
-
-      const filtered = (REPORT_CACHE.data || []).filter(row=>{
-        if(!query) return true;
-        return row.some(c => String(c ?? "").toLowerCase().includes(query));
-      });
-
-      const visible = filtered.slice(0, limit);
-      $("reportBody").innerHTML = visible.map(row=>{
+      // Satırlar
+      let html = (r.data||[]).map(row=>{
         return "<tr>" + row.map(c=>`<td>${escapeHtml(String(c ?? ""))}</td>`).join("") + "</tr>";
       }).join("");
 
-      updateReportStats(visible);
-    }
+      // ✅ TOTAL USED
+      const t = r.totals || { sick:0, annual:0, total:0 };
+      html += `
+        <tr>
+          <td colspan="3" style="font-weight:800;">TOTAL USED</td>
+          <td style="font-weight:800;">${escapeHtml(String(t.sick))}</td>
+          <td style="font-weight:800;">${escapeHtml(String(t.annual))}</td>
+          <td colspan="2" style="font-weight:800;">Grand Total: ${escapeHtml(String(t.total))}</td>
+        </tr>
+      `;
 
-    function updateReportStats(rows){
-      const toNum = (v)=>{
-        const n = Number(String(v ?? "").replace(/,/g, "").trim());
-        return isNaN(n) ? 0 : n;
-      };
-      let annual = 0, sick = 0;
-      rows.forEach(r=>{
-        sick += toNum(r[3]);
-        annual += toNum(r[4]);
-      });
-      $("reportRowCount").textContent = String(rows.length || 0);
-      $("reportAnnualUsed").textContent = String(annual);
-      $("reportSickUsed").textContent = String(sick);
-    }
+      // ✅ REMAINING (Remind Days) — E3 veya STAFF_LIST I
+      const rem = (r.remainingTotal ?? "");
+      const src = (r.remainFrom ?? "");
+      html += `
+        <tr>
+          <td colspan="5" style="font-weight:800;">REMAINING DAYS (from ${escapeHtml(src)})</td>
+          <td colspan="2" style="font-weight:800;">${escapeHtml(String(rem))}</td>
+        </tr>
+      `;
 
-    function exportReportCsv(){
-      const heads = REPORT_CACHE.header || [];
-      const bodyRows = Array.from(document.querySelectorAll("#reportBody tr")).map(tr=>
-        Array.from(tr.querySelectorAll("td")).map(td=>td.textContent)
-      );
-      const lines = [];
-      lines.push(heads.map(csvCell).join(","));
-      bodyRows.forEach(r=> lines.push(r.map(csvCell).join(",")));
-
-      const blob = new Blob([lines.join("\n")], {type:"text/csv;charset=utf-8;"});
-      const a = document.createElement("a");
-      a.href = URL.createObjectURL(blob);
-      a.download = "leave-report.csv";
-      a.click();
-      URL.revokeObjectURL(a.href);
-    }
-
-    function csvCell(v){
-      return `"${String(v ?? "").replace(/"/g,'""')}"`;
+      $("reportBody").innerHTML = html;
     }
 
     // ---------------------------

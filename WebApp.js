@@ -105,18 +105,16 @@ function apiGetAllStaffReport() {
 
   const lastRow = sh.getLastRow();
   const data = (lastRow < 3) ? [] : sh.getRange(3, 1, lastRow - 2, 9).getValues();
-  const sorted = data.sort((a, b) => String(a[1] || "").localeCompare(String(b[1] || "")));
 
   return {
     title: "All Staff Report",
-    generatedAt: new Date().toISOString(),
     header: [
       "Employee ID","Employee Name","Department",
       "Annual Leave Entitled","Sick Leave Entitled",
       "Annual Leave Used","Sick Leave Used",
       "Remaining Annual Leave","Remaining Sick Leave"
     ],
-    data: sorted
+    data
   };
 }
 
@@ -222,4 +220,5 @@ function apiGetDashboardChartData() {
 
   return { labels, annual, sick };
 }
+
 
